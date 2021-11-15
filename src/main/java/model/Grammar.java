@@ -23,7 +23,6 @@ public class Grammar {
     private List<HandsidesGrammarPair> P;
     private BufferedReader reader;
 
-
     /**
      * Custom constructor that reads a file with a path given in the configurations file and mapps the input as an Grammar object
      *
@@ -31,7 +30,7 @@ public class Grammar {
      */
     public Grammar() {
             try {
-                this.reader = new BufferedReader(new FileReader("src/main/resources/regular_grammar_1.txt"));
+                this.reader = new BufferedReader(new FileReader("src/main/resources/g1.txt"));
                 this.initializeFromFile();
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("Couldn't initialize the grammar !!");
@@ -114,57 +113,12 @@ public class Grammar {
     }
 
     /**
-     * @return true -> if the parsed grammar is a regular one
-     *         false -> otherwise
-     */
-    public boolean isRegularGrammar(){
-        for (var e : this.P) {
-            var inRhs = new ArrayList<Character>();
-            var excludeFromRhs = new ArrayList<Character>();
-            for (var rhsValue : e.getRightHandside()) {
-                var hasTerminal = false;
-                var hasNonTerminal = false;
-                if (rhsValue.length() > 2) {
-                    return false;
-                }
-                for (var item : rhsValue.toCharArray()){
-                    if(isInNonTerminals(item)){
-                        inRhs.add(item);
-                        hasNonTerminal = true;
-                    }
-                    else if(isInTerminals(item)){
-                        // check if a non-terminal was't the last symbol
-                        if(hasNonTerminal){
-                            return false;
-                        }
-                        hasTerminal = true;
-                    }
-                    if(item == 'E'){
-                        excludeFromRhs.add(item);
-                    }
-                }
-                //check in case it has only non-terminal symbols
-                if(hasNonTerminal && !hasTerminal){
-                    return false;
-                }
-            }
-            // check in cas E(Epsilon) was used asa a symbol
-            for (var excludeFromRh : excludeFromRhs) {
-                if (inRhs.contains(excludeFromRh)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * @param currentSymbol -> symbol to be checked if it is a terminal one
      * @return true -> if the symbol is in terminals list of the Grammar object (E field)
      * false -> otherwise
      */
-    public boolean isInTerminals(char currentSymbol) {
-        return E.contains(String.valueOf(currentSymbol));
+    public boolean isInTerminals(String currentSymbol) {
+        return E.contains(currentSymbol);
     }
 
     /**
@@ -172,8 +126,13 @@ public class Grammar {
      * @return true -> if the symbol is in non-terminals list of the Grammar object (N field)
      * false -> otherwise
      */
-    public boolean isInNonTerminals(char currentSymbol) {
-        return N.contains(String.valueOf(currentSymbol));
+    public boolean isInNonTerminals(String currentSymbol) {
+        return N.contains(currentSymbol);
     }
 
+    public boolean isContextFreeGrammar(){
+        return this.P
+                .stream()
+                .allMatch(e -> isInNonTerminals(e.getLeftHandside()));
+    }
 }
