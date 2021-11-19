@@ -1,8 +1,8 @@
-N = { S, A, B }
-E = { a, b, c }
+N = { S, B, C }
+E = { a, b, c, d, ϵ }
 S = S
 P = {
-	S -> aB | bA,
-	A -> a | aS | bAA,
-	B -> b | bS | aBB
+	S -> B b | C d,
+	B -> a B | ϵ,
+	C -> c C | ϵ
 }

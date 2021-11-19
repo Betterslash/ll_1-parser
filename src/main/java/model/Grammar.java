@@ -47,7 +47,7 @@ public class Grammar {
         try {
             var item = Arrays.stream(reader.readLine()
                             .strip()
-                            .split("=")).toList()
+                            .split("=", 2)).toList()
                     .stream().map(String::strip)
                     .collect(Collectors.toList()).get(1);
             return Arrays.stream(item.substring(2, item.length() - 2)
@@ -68,7 +68,7 @@ public class Grammar {
         try {
             var reducedLastLines = reader.lines().reduce((a, b) -> a + b)
                     .orElseThrow()
-                    .split("=")[1];
+                    .split(" = ", 2)[1];
             var expressions = reducedLastLines
                     .substring(3, reducedLastLines.length() - 1)
                     .replaceAll(",", "")
@@ -77,14 +77,17 @@ public class Grammar {
                     .toList()
                     .stream()
                     .map(e -> {
-                        var leftHandside = e.split(" -> ")[0];
-                        var rightHandside = e.split(" -> ")[1]
-                                .replaceAll(" ", "")
-                                .split("\\|");
+                        var leftHandside = e.split(" -> ", 2)[0];
+                        var rightHandside = new ArrayList<Production>();
+                                Arrays.stream(e.split(" -> ", 2)[1]
+                                .split(" \\| "))
+                                .forEach(z -> rightHandside.add(Production.builder()
+                                        .representation(Arrays.asList(z.split(" ")))
+                                        .build()));
                         return HandsidesGrammarPair
                                 .builder()
                                 .leftHandside(leftHandside)
-                                .rightHandside(List.of(rightHandside))
+                                .rightHandside(rightHandside)
                                 .build();
                     })
                     .collect(Collectors.toList());
@@ -102,7 +105,7 @@ public class Grammar {
         try {
             this.N = readLineAsList();
             this.E = readLineAsList();
-            this.S = Arrays.stream(reader.readLine().strip().split(" = ")).toList().get(1);
+            this.S = Arrays.stream(reader.readLine().strip().split(" = ", 2)).toList().get(1);
             this.P = parseRules();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't parse the file correctly!!");
@@ -130,6 +133,10 @@ public class Grammar {
         return N.contains(currentSymbol);
     }
 
+    /**
+     * @return true -> every left handside is in the non terminal with exactly one element
+     *         false -> otherwise
+     */
     public boolean isContextFreeGrammar(){
         return this.P
                 .stream()

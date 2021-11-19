@@ -1,0 +1,34 @@
+N = { program, decllist, arithmetic, arithmetic1, arithmetic2, multiply1, multiply2, term, term', declaration, lidentifier, type1, type2, type3, arraydecl, cmpdstmt, stmtlist, stmt, simplstmt, assignstmt, expression, term, factor, iostmt, structstmt, ifstmt, whilestmt, condition, returnstmt, forstmt, relation }
+E = { var, const, identifier, ϵ, id, ;, :, {, }, [, ], ::, <-, +, -, ^, *, (, ), <, <=, >=, =, !=, >, for, while, mod, div, /, array, if, else, bool, typedef, ,, return, char, int, double, write, writeln, read, readln, nr }
+S = program
+P = {
+	program -> var decllist ; cmpdstmt ;,
+	decllist -> declaration | declaration ; decllist,
+	declaration -> lidentifier : type | arraydecl,
+	lidentifier -> id | id , lidentifier ;,
+	type1 -> bool | char | int | double,
+	type2 -> typedef :: identifier { decllist },
+	type3 -> bool | char | int | double | type2,
+	arraydecl -> array [ nr ] :: type3,
+	cmpdstmt -> { stmtlist },
+	stmtlist -> stmt ; stmtlist,
+	stmt -> simplstmt | structstmt,
+	simplstmt -> assignstmt | iostmt,
+	assignstmt -> identifier <- expression ;,
+	expression -> arithmetic2 arithmetic1,
+	arithmetic1 -> + arithmetic2 arithmetic1 | - arithmetic2 arithmetic1 | ϵ,
+	arithmetic2 -> multiply2 multiply1,
+	multiply1 -> * multiply2 multiply1 | / multiply2 multiply1 | ϵ,
+	multiply2 -> ( expression ) | id | const , term -> factor term',
+	factor -> ( expression ) | identifier,
+	iostmt -> read ( identifier ) | write ( identifier ) | readln ( identifier ) | writeln ( identifier ),
+	structstmt -> { stmtlist } | ifstmt | whilestmt,
+	ifstmt -> if ( condition ) cmpdstmt | if ( condition ) cmpdstmt else cmpdstmt,
+	whilestmt -> while ( condition ) cmpdstmt,
+	condition -> + aritmethic | - aritmethic | / aritmethic | * aritmethic | div aritmethic | mod aritmethic | ^ aritmethic | ( expression ) term' relation expression | identifier term' relation expression,
+	arithmetic -> expression term relation expression,
+	returnstmt -> return expression ; | return ;,
+	forstmt -> for ( assignstmt ; condition ; expression ) cmpdstmt,
+	relation -> < | <= | = | != | >= | >,
+	term' -> * factor term' | ^ factor term' | ϵ
+}
