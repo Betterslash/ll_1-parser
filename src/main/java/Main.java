@@ -1,4 +1,5 @@
 import model.Grammar;
+import service.Parser;
 
 /**
  * Main Class for running the program
@@ -9,8 +10,8 @@ public class Main {
      * @param args args for determining specific behaviour of the program
      */
     public static void main(String[] args) {
-        var grammar = new Grammar();
-        System.out.println(grammar);
-        System.out.println(grammar.isContextFreeGrammar());
+        var parser = new Parser();
+        parser.getFirstMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
+        parser.getFollowMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
     }
 }
