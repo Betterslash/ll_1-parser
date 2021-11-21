@@ -70,7 +70,7 @@ public class Grammar {
                     .orElseThrow()
                     .split(" = ", 2)[1];
             var expressions = reducedLastLines
-                    .substring(3, reducedLastLines.length() - 1)
+                    .substring(2, reducedLastLines.length() - 1)
                     .replaceAll(",", "")
                     .split("\t");
             return Arrays.stream(expressions)

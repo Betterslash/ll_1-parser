@@ -1,7 +1,7 @@
 N = { S, B, C }
-E = { a, b, c, d, ϵ }
+E = { a, b, c, d }
 S = S
-P = {	
+P = {
 	S -> B b | C d,
 	B -> a B | ϵ,
 	C -> c C | ϵ

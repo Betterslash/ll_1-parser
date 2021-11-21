@@ -1,14 +1,14 @@
-N = { program, decllist, arithmetic, arithmetic1, arithmetic2, multiply1, multiply2, term, term', declaration, lidentifier, type1, type2, type3, arraydecl, cmpdstmt, stmtlist, stmt, simplstmt, assignstmt, expression, term, factor, iostmt, structstmt, ifstmt, whilestmt, condition, returnstmt, forstmt, relation }
+N = { program, decllist, arithmetic, arithmetic1, arithmetic2, multiply1, multiply2, term, term', declaration, lidentifier, type1, type2, type3, arraydecl, cmpdstmt, stmtlist, stmt, simplstmt, assignstmt, expression, factor, iostmt, structstmt, ifstmt, whilestmt, condition, returnstmt, forstmt, relation }
 E = { var, const, identifier, ϵ, id, ;, :, {, }, [, ], ::, <-, +, -, ^, *, (, ), <, <=, >=, =, !=, >, for, while, mod, div, /, array, if, else, bool, typedef, ,, return, char, int, double, write, writeln, read, readln, nr }
 S = program
 P = {
 	program -> var decllist ; cmpdstmt ;,
 	decllist -> declaration | declaration ; decllist,
-	declaration -> lidentifier : type | arraydecl,
+	declaration -> lidentifier : type3 | arraydecl,
 	lidentifier -> id | id , lidentifier ;,
 	type1 -> bool | char | int | double,
 	type2 -> typedef :: identifier { decllist },
-	type3 -> bool | char | int | double | type2,
+	type3 -> type1 | type2,
 	arraydecl -> array [ nr ] :: type3,
 	cmpdstmt -> { stmtlist },
 	stmtlist -> stmt ; stmtlist,
@@ -19,7 +19,7 @@ P = {
 	arithmetic1 -> + arithmetic2 arithmetic1 | - arithmetic2 arithmetic1 | ϵ,
 	arithmetic2 -> multiply2 multiply1,
 	multiply1 -> * multiply2 multiply1 | / multiply2 multiply1 | ϵ,
-	multiply2 -> ( expression ) | id | const , term -> factor term',
+	multiply2 -> ( expression ) | id | const ,
 	factor -> ( expression ) | identifier,
 	iostmt -> read ( identifier ) | write ( identifier ) | readln ( identifier ) | writeln ( identifier ),
 	structstmt -> { stmtlist } | ifstmt | whilestmt,
@@ -30,5 +30,6 @@ P = {
 	returnstmt -> return expression ; | return ;,
 	forstmt -> for ( assignstmt ; condition ; expression ) cmpdstmt,
 	relation -> < | <= | = | != | >= | >,
-	term' -> * factor term' | ^ factor term' | ϵ
+	term' -> * factor term' | ^ factor term' | ϵ,
+	term -> factor term'
 }

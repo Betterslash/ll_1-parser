@@ -3,11 +3,13 @@ package model;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Getter
+@Setter
 @Builder
 @RequiredArgsConstructor
 public class HandsidesGrammarPair {

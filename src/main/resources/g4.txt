@@ -1,8 +1,7 @@
-E -> T R,
-R=+ T R,
-R= #
-    strcpy(production[3], "T=FY");
-    strcpy(production[4], "Y=*FY");
-    strcpy(production[5], "Y=#");
-    strcpy(production[6], "F=(E)");
-    strcpy(production[7], "F=i");
+N = { S, A }
+E = { a, b, c }
+S = S
+P = {
+	S -> A a | a,
+	A -> b A | c
+}
