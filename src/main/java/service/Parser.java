@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import model.Grammar;
 import model.HandsidesGrammarPair;
-import model.Production;
 import util.ProgramInitializer;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Getter
@@ -21,41 +21,67 @@ public class Parser {
     public Parser(){
         grammar = new Grammar();
         firstMap = generateFirstSet();
-        followMap = generateFollowSet();
+        followMap = generateFollow();
     }
 
-    private Set<String> getFollows(Production production, String key){
-        var productionRepresentation = production.getRepresentation();
-        return new HashSet<>(productionRepresentation
-                .subList(productionRepresentation.indexOf(key) + 1,
-                        productionRepresentation.size()));
-    }
-
-    private Map<String, Set<String>> generateFollowSet() {
+    private Map<String, Set<String>> generateFollow(){
         var result = new HashMap<String, Set<String>>();
-        grammar.getP()
-                .forEach(e -> result.put(e.getLeftHandside(), new HashSet<>()));
-        result.put(grammar.getS(), Set.of("$"));
-        result.forEach((key, value) -> grammar.getP()
-                .forEach(u -> u.getRightHandside()
-                        .forEach(l -> {
-                            if(l.getRepresentation().contains(key)){
-                                var values = getFollows(l, key);
-                                values.forEach(o -> {
-                                    var curretnValue = result.get(key);
-                                    if(grammar.isInTerminals(o)){
-                                        curretnValue.add(o);
-                                    }else{
-                                        curretnValue.addAll(applyFirst(o)
-                                                .stream()
-                                                .filter(q -> !Objects.equals(q, ProgramInitializer.EPSILON)).collect(Collectors.toSet()));
-                                    }
-                                    result.put(key, curretnValue);
-                                });
-                            }
-                })));
+        grammar.getN()
+                .forEach(e -> result.put(e, new HashSet<>()));
+        result.get(grammar.getS()).add("$");
+        var nonTerms = grammar.getN();
+        var changed = new AtomicBoolean(true);
+        while (changed.get()){
+            changed.set(false);
+            for (var nT: nonTerms) {
+                var rst = getFollow(nT, result);
+                var previous = new HashMap<>(result);
+                result.get(nT).addAll(rst);
+                previous.forEach((key, value) -> {
+                    if (result.get(key).size() != previous.get(key).size()) {
+                        changed.set(true);
+                    }
+                });
+            }
+        }
         return result;
     }
+
+    private Set<String> getFollow(String key, Map<String, Set<String>> follow) {
+        var result = new HashSet<String>();
+        grammar.getP()
+                .forEach(e -> {
+                    var filteredProductions = e.getRightHandside()
+                            .stream()
+                            .filter(n -> n.getRepresentation().contains(key))
+                            .map(l -> {
+                                var index = l.getRepresentation().indexOf(key);
+                                return l.getRepresentation().subList(index + 1, l.getRepresentation().size());})
+                            .collect(Collectors.toSet());
+                    var res = filteredProductions.stream()
+                            .map(s -> {
+                                if(s.size() > 0){
+                                    var first = applyFirst(s.get(0));
+                                    if(first.contains(ProgramInitializer.EPSILON)){
+                                        var r1 = new HashSet<>(follow.get(e.getLeftHandside()));
+                                        r1.addAll(first.stream()
+                                                .filter(j -> !Objects.equals(j, ProgramInitializer.EPSILON))
+                                                .collect(Collectors.toSet()));
+                                        return r1;
+                                    }else{
+                                        return first;
+                                    }
+                                }else{
+                                    return follow.get(e.getLeftHandside());
+                                }
+                            })
+                            .flatMap(Set::stream)
+                            .collect(Collectors.toSet());
+                    result.addAll(res);
+                });
+        return result;
+    }
+
 
     private Map<String, Set<String>> generateFirstSet() {
         var result = new HashMap<String, Set<String>>();
