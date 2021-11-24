@@ -1,16 +1,16 @@
 package model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
+@Setter
 @Getter
 @Builder
+@AllArgsConstructor
 @RequiredArgsConstructor
 public class Production {
-    private final List<String> representation;
+    private List<String> representation;
 
     @Override
     public String toString() {

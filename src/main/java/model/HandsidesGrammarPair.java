@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Getter
 @Setter
