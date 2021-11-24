@@ -30,7 +30,7 @@ public class Grammar {
      */
     public Grammar() {
             try {
-                this.reader = new BufferedReader(new FileReader("src/main/resources/g2.txt"));
+                this.reader = new BufferedReader(new FileReader("src/main/resources/g1.txt"));
                 this.initializeFromFile();
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("Couldn't initialize the grammar !!");

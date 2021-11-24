@@ -13,15 +13,17 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor
 public class Parser {
+
     private final Grammar grammar;
     private final Map<String, Set<String>> firstMap;
     private final Map<String, Set<String>> followMap;
-    private final Map<String, String> table = null;
+    private final ParserTable parserTable;
 
     public Parser(){
         grammar = new Grammar();
         firstMap = generateFirstSet();
         followMap = generateFollow();
+        parserTable = new ParserTable(this);
     }
 
     private Map<String, Set<String>> generateFollow(){
@@ -82,7 +84,6 @@ public class Parser {
         return result;
     }
 
-
     private Map<String, Set<String>> generateFirstSet() {
         var result = new HashMap<String, Set<String>>();
         for (var e: grammar.getP()) {
@@ -124,7 +125,6 @@ public class Parser {
         return result;
     }
 
-
     private HandsidesGrammarPair getGrammarPair(String firstElementOfProduction) {
         return grammar.getP()
                 .stream()
@@ -134,4 +134,39 @@ public class Parser {
                     throw new RuntimeException(firstElementOfProduction);});
     }
 
+    public Set<String> getFristFromMap(String key){
+        if(grammar.isInTerminals(key)){
+            return Set.of(key);
+        }
+        return this.getFirstMap().get(key);
+    }
+
+    public Set<String> getFollowFromMap(String key){
+        return this.getFollowMap().get(key);
+    }
+
+    public List<Integer> isAccepted(List<String> production){
+        var toBeChecked = new ArrayList<>(production);
+        toBeChecked.add("$");
+        var initialStep = new ArrayList<>(Arrays.asList(grammar.getS(), "$"));
+        var derivations = new ArrayList<Integer>();
+        while (!Objects.equals(toBeChecked.get(0), "$")){
+            var e = toBeChecked.get(0);
+                var result = parserTable.getValue(initialStep.get(0), e);
+                if(Objects.equals(result.getProduction().getRepresentation().get(0), "pop")){
+                    toBeChecked = new ArrayList<>(toBeChecked.subList(1, toBeChecked.size()));
+                    initialStep = new ArrayList<>(initialStep.subList(1, initialStep.size()));
+                }else if(Objects.equals(result.getProduction().getRepresentation().get(0), "acc")){
+                    return derivations;
+                }else if(!Objects.equals(result.getProduction().getRepresentation().get(0), ProgramInitializer.EPSILON)){
+                    initialStep.remove(0);
+                    initialStep.addAll(0, result.getProduction().getRepresentation());
+                    derivations.add(result.getProductionKey());
+                }else{
+                    initialStep.remove(0);
+                    derivations.add(result.getProductionKey());
+                }
+        }
+        return  derivations;
+    }
 }

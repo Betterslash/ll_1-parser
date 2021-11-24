@@ -1,5 +1,6 @@
-import model.Grammar;
 import service.Parser;
+
+import java.util.List;
 
 /**
  * Main Class for running the program
@@ -13,5 +14,7 @@ public class Main {
         var parser = new Parser();
         parser.getFirstMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
         parser.getFollowMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
+        System.out.println(parser.getParserTable().toTableInfo());
+        System.out.println(parser.isAccepted(List.of("a","+", "a", "+", "a", "*", "a")));
     }
 }
