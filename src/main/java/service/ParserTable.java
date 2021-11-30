@@ -106,15 +106,13 @@ public class ParserTable {
         else {
             var result = new HashSet<String>();
             for (var elem: a) {
-                b.forEach(q -> {
-                    if(Objects.equals(q, ProgramInitializer.EPSILON)){
-                        result.add(String.valueOf(elem.charAt(0)));
-                    }
+                for (var ele: b) {
                     if(Objects.equals(elem, ProgramInitializer.EPSILON)){
-                        result.add(String.valueOf(q.charAt(0)));
+                        result.add(ele);
+                    }else{
+                        result.add(elem);
                     }
-                    result.add(String.valueOf((elem + q).charAt(0)));
-                });
+                }
             }
             return result;
         }
@@ -128,13 +126,17 @@ public class ParserTable {
         if(possibleResult.size() > 0){
             return possibleResult.get(0).getValue();
         }else{
-            throw new RuntimeException("Sequence is not accepted !!");
+            throw new RuntimeException(String.format("Sequence is not accepted at row : '%s' column : '%s' ...", row ,column));
         }
     }
 
     public String toTableInfo(){
         var stringBuilder = new StringBuilder();
-        representation.forEach((key, vlaue) -> stringBuilder.append(key).append(" -> ").append(vlaue));
+        representation.forEach((key, value) -> {
+            if(value.getProduction() != null && value.getProductionKey() != null){
+                stringBuilder.append(key).append(" -> ").append(value);
+            }
+        });
         return stringBuilder.toString();
     }
 }
