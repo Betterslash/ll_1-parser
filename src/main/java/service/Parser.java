@@ -145,7 +145,7 @@ public class Parser {
         return this.getFollowMap().get(key);
     }
 
-    public List<Integer> isAccepted(List<String> production){
+    public List<Integer> getDerivationsForSequence(List<String> production){
         var toBeChecked = new ArrayList<>(production);
         toBeChecked.add("$");
         var initialStep = new ArrayList<>(Arrays.asList(grammar.getS(), "$"));
@@ -168,5 +168,28 @@ public class Parser {
                 }
         }
         return  derivations;
+    }
+
+    public void displayDerivationsForSequence(List<String> productions){
+        var derivations = getDerivationsForSequence(productions);
+        System.out.println("Derivations : ");
+        if(derivations.size() > 0){
+            derivations.forEach(e -> System.out.println(this.grammar.getSortedProductions().get(e - 1)));
+        }
+        System.out.println();
+    }
+
+    public void displayFollow(){
+        System.out.println("Follow : ");
+        this.followMap
+                .forEach((key, value) -> System.out.println(key + " -> " + value));
+        System.out.println();
+    }
+
+    public void displayFirst(){
+        System.out.println("First : ");
+        this.firstMap
+                .forEach((key, value) -> System.out.println(key + " -> " + value));
+        System.out.println();
     }
 }

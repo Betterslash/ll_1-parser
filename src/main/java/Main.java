@@ -1,3 +1,4 @@
+import model.tree.ParserTree;
 import service.Parser;
 
 import java.util.List;
@@ -12,9 +13,16 @@ public class Main {
      */
     public static void main(String[] args) {
         var parser = new Parser();
-        parser.getFirstMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
-        parser.getFollowMap().forEach((key, value) -> System.out.println(key + " -> " + value + System.lineSeparator()));
+        var testSequence= List.of("a","+", "a", "+", "a", "*", "a"/*"var","id", ":", "int", ";", "id", ":", "bool", ";",
+                "{", "id", "<-", "0", ";", "}"*/);
+
+        parser.displayFirst();
+        parser.displayFollow();
         System.out.println(parser.getParserTable().toTableInfo());
-        System.out.println(parser.isAccepted(List.of("a","+", "a", "+", "a", "*", "a")));
+        parser.displayDerivationsForSequence(testSequence);
+        var ws = parser.getDerivationsForSequence(testSequence).stream().map(Object::toString).reduce((a, b) -> a + b).orElseThrow();
+        var pareserTree = new ParserTree(parser.getGrammar(), ws);
+
+        pareserTree.prettyPrint();
     }
 }

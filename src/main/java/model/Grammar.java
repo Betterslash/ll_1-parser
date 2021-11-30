@@ -6,9 +6,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Getter
@@ -22,6 +21,7 @@ public class Grammar {
     private String S;
     private List<HandsidesGrammarPair> P;
     private BufferedReader reader;
+    private Map<Integer, Production> sortedProductions;
 
     /**
      * Custom constructor that reads a file with a path given in the configurations file and mapps the input as an Grammar object
@@ -107,12 +107,25 @@ public class Grammar {
             this.E = readLineAsList();
             this.S = Arrays.stream(reader.readLine().strip().split(" = ", 2)).toList().get(1);
             this.P = parseRules();
+            this.sortedProductions = initializeSortedProductions();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't parse the file correctly!!");
         }
         finally {
             reader.close();
         }
+    }
+
+    private Map<Integer, Production> initializeSortedProductions() {
+        var result = new HashMap<Integer, Production>();
+        var index = new AtomicInteger();
+        this.P.stream()
+                .map(HandsidesGrammarPair::getRightHandside)
+                .forEach(e -> e.forEach(q -> {
+                    result.put(index.get(), q);
+                    index.addAndGet(1);
+                }));
+        return result;
     }
 
     /**

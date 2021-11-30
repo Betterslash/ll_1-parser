@@ -1,11 +1,11 @@
 N = { program, decllist, arithmetic, arithmetic1, arithmetic2, multiply1, multiply2, term, term', declaration, lidentifier, type1, type2, type3, arraydecl, cmpdstmt, stmtlist, stmt, simplstmt, assignstmt, expression, factor, iostmt, structstmt, ifstmt, whilestmt, condition, returnstmt, forstmt, relation }
-E = { var, const, identifier, ϵ, id, ;, :, {, }, [, ], ::, <-, +, -, ^, *, (, ), <, <=, >=, =, !=, >, for, while, mod, div, /, array, if, else, bool, typedef, ,, return, char, int, double, write, writeln, read, readln, nr }
+E = { var, const, identifier, ϵ, id, ?, ;, :, {, }, [, ], ::, <-, +, -, ^, *, (, ), <, <=, >=, =, !=, >, for, while, mod, div, /, array, if, else, bool, typedef, ,, return, char, int, double, write, writeln, read, readln, nr }
 S = program
 P = {
-	program -> var decllist ; cmpdstmt ;,
+	program -> var decllist ; cmpdstmt,
 	decllist -> declaration | declaration ; decllist,
 	declaration -> lidentifier : type3 | arraydecl,
-	lidentifier -> id | id , lidentifier ;,
+	lidentifier -> id,
 	type1 -> bool | char | int | double,
 	type2 -> typedef :: identifier { decllist },
 	type3 -> type1 | type2,
@@ -14,12 +14,12 @@ P = {
 	stmtlist -> stmt ; stmtlist,
 	stmt -> simplstmt | structstmt,
 	simplstmt -> assignstmt | iostmt,
-	assignstmt -> identifier <- expression ;,
+	assignstmt -> identifier <- expression ,
 	expression -> arithmetic2 arithmetic1,
 	arithmetic1 -> + arithmetic2 arithmetic1 | - arithmetic2 arithmetic1 | ϵ,
 	arithmetic2 -> multiply2 multiply1,
 	multiply1 -> * multiply2 multiply1 | / multiply2 multiply1 | ϵ,
-	multiply2 -> ( expression ) | id | const ,
+	multiply2 -> ( expression ) | id | const,
 	factor -> ( expression ) | identifier,
 	iostmt -> read ( identifier ) | write ( identifier ) | readln ( identifier ) | writeln ( identifier ),
 	structstmt -> { stmtlist } | ifstmt | whilestmt,
