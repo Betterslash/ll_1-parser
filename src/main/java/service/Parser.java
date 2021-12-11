@@ -2,6 +2,7 @@ package service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import model.Derivation;
 import model.Grammar;
 import model.HandsidesGrammarPair;
 import model.Production;
@@ -168,29 +169,46 @@ public class Parser {
                     derivations.add(result.getProductionKey());
                 }
         }
+        while (!Objects.equals(initialStep.get(0), "$")){
+            var currentSymbol = initialStep.get(0);
+            var index = grammar.getKeySortedProduction()
+                    .entrySet().stream()
+                    .filter(e -> Objects.equals(e.getValue().toString(), ProgramInitializer.EPSILON) && Objects.equals(e.getKey().getKey(), currentSymbol))
+                            .findFirst()
+                                    .orElseThrow()
+                                            .getKey()
+                    .getIndex();
+            derivations.add(index + 1);
+            initialStep.remove(0);
+        }
         return  derivations;
     }
 
     public void displayDerivationsForSequence(List<String> productions){
         var derivations = getDerivationsForSequence(productions);
-        var states = new ArrayList<List<String>>();
+        var states = new ArrayList<Derivation>();
         System.out.println("Derivations : ");
-        var production = getProductionForIndex(derivations.get(0));
+        var currentDerivationNumber = derivations.get(0);
+        var production = getProductionForIndex(currentDerivationNumber);
         derivations.remove(0);
         var result = new ArrayList<>(production.getRepresentation());
-        states.add(new ArrayList<>(result));
+        states.add(new Derivation(new ArrayList<>(result), currentDerivationNumber));
         while (derivations.size() > 0){
-            production = getProductionForIndex(derivations.get(0));
+            currentDerivationNumber = derivations.get(0);
+            production = getProductionForIndex(currentDerivationNumber);
             derivations.remove(0);
             var leftHandise = getRightHandsideForProduction(production);
             var indexOfLeftHandsideInResult = result.indexOf(leftHandise);
             if(indexOfLeftHandsideInResult != -1){
                 result.remove(indexOfLeftHandsideInResult);
                 result.addAll(indexOfLeftHandsideInResult, production.getRepresentation().stream().filter(e -> !Objects.equals(e, ProgramInitializer.EPSILON)).collect(Collectors.toList()));
-                states.add(new ArrayList<>(result));
+                states.add(new Derivation(new ArrayList<>(result), currentDerivationNumber));
             }
         }
-        states.forEach(System.out::println);
+        states.stream()
+                .map(Derivation::toDerivationInfo)
+                .toList()
+                .forEach(System.out::println);
     }
 
     private Production getProductionForIndex(int index){
