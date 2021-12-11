@@ -2,8 +2,10 @@ package service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import model.Derivation;
 import model.Grammar;
 import model.HandsidesGrammarPair;
+import model.Production;
 import util.ProgramInitializer;
 
 import java.util.*;
@@ -167,16 +169,64 @@ public class Parser {
                     derivations.add(result.getProductionKey());
                 }
         }
+        while (!Objects.equals(initialStep.get(0), "$")){
+            var currentSymbol = initialStep.get(0);
+            var index = grammar.getKeySortedProduction()
+                    .entrySet().stream()
+                    .filter(e -> Objects.equals(e.getValue().toString(), ProgramInitializer.EPSILON) && Objects.equals(e.getKey().getKey(), currentSymbol))
+                            .findFirst()
+                                    .orElseThrow()
+                                            .getKey()
+                    .getIndex();
+            derivations.add(index + 1);
+            initialStep.remove(0);
+        }
         return  derivations;
     }
 
     public void displayDerivationsForSequence(List<String> productions){
         var derivations = getDerivationsForSequence(productions);
+        var states = new ArrayList<Derivation>();
         System.out.println("Derivations : ");
-        if(derivations.size() > 0){
-            derivations.forEach(e -> System.out.println(this.grammar.getSortedProductions().get(e - 1)));
+        var currentDerivationNumber = derivations.get(0);
+        var production = getProductionForIndex(currentDerivationNumber);
+        derivations.remove(0);
+        var result = new ArrayList<>(production.getRepresentation());
+        states.add(new Derivation(new ArrayList<>(result), currentDerivationNumber));
+        while (derivations.size() > 0){
+            currentDerivationNumber = derivations.get(0);
+            production = getProductionForIndex(currentDerivationNumber);
+            derivations.remove(0);
+            var leftHandise = getRightHandsideForProduction(production);
+            var indexOfLeftHandsideInResult = result.indexOf(leftHandise);
+            if(indexOfLeftHandsideInResult != -1){
+                result.remove(indexOfLeftHandsideInResult);
+                result.addAll(indexOfLeftHandsideInResult, production.getRepresentation().stream().filter(e -> !Objects.equals(e, ProgramInitializer.EPSILON)).collect(Collectors.toList()));
+                states.add(new Derivation(new ArrayList<>(result), currentDerivationNumber));
+            }
         }
-        System.out.println();
+        states.stream()
+                .map(Derivation::toDerivationInfo)
+                .toList()
+                .forEach(System.out::println);
+    }
+
+    private Production getProductionForIndex(int index){
+        return this.grammar.getSortedProductions().get(index - 1);
+    }
+
+    private String getRightHandsideForProduction(Production production){
+        return this.grammar.getP()
+                .stream()
+                .filter(e -> e.getRightHandside().contains(production))
+                .findAny()
+                .orElseThrow()
+                .getLeftHandside();
+    }
+
+    public int getFirstNonTerminalPosition(List<String> production){
+        var nonTermial = production.stream().filter(grammar::isInNonTerminals).findFirst();
+        return production.indexOf(nonTermial.orElse(""));
     }
 
     public void displayFollow(){

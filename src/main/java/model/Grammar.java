@@ -22,6 +22,8 @@ public class Grammar {
     private List<HandsidesGrammarPair> P;
     private BufferedReader reader;
     private Map<Integer, Production> sortedProductions;
+    private Map<SortedProductionKey, Production> keySortedProduction;
+
 
     /**
      * Custom constructor that reads a file with a path given in the configurations file and mapps the input as an Grammar object
@@ -108,6 +110,7 @@ public class Grammar {
             this.S = Arrays.stream(reader.readLine().strip().split(" = ", 2)).toList().get(1);
             this.P = parseRules();
             this.sortedProductions = initializeSortedProductions();
+            this.keySortedProduction = initializeKeySortedProductions();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't parse the file correctly!!");
         }
@@ -123,6 +126,16 @@ public class Grammar {
                 .map(HandsidesGrammarPair::getRightHandside)
                 .forEach(e -> e.forEach(q -> {
                     result.put(index.get(), q);
+                    index.addAndGet(1);
+                }));
+        return result;
+    }
+
+    private Map<SortedProductionKey, Production> initializeKeySortedProductions() {
+        var result = new HashMap<SortedProductionKey, Production>();
+        var index = new AtomicInteger();
+        this.P.forEach(e -> e.getRightHandside().forEach(q -> {
+                    result.put(new SortedProductionKey(e.getLeftHandside(), index.get()), q);
                     index.addAndGet(1);
                 }));
         return result;

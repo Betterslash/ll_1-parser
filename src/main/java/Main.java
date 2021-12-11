@@ -13,8 +13,8 @@ public class Main {
      */
     public static void main(String[] args) {
         var parser = new Parser();
-        var testSequence= List.of("a","+", "a", "+", "a", "*", "a"/*"var","id", ":", "int", ";", "id", ":", "bool", ";",
-                "{", "id", "<-", "0", ";", "}"*/);
+        var testSequence= List.of("a","+", "(", "a", "+", "a", ")", "*","(" , "a", "+", "a", ")", "+", "a"
+                /*"var","id", ":", "int", ";", "id", ":", "bool", ";","id", ":", "char", ";"*/);
 
         parser.displayFirst();
         parser.displayFollow();
