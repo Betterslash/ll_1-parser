@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import model.Grammar;
 import model.HandsidesGrammarPair;
+import model.Production;
 import util.ProgramInitializer;
 
 import java.util.*;
@@ -172,11 +173,42 @@ public class Parser {
 
     public void displayDerivationsForSequence(List<String> productions){
         var derivations = getDerivationsForSequence(productions);
+        var states = new ArrayList<List<String>>();
         System.out.println("Derivations : ");
-        if(derivations.size() > 0){
-            derivations.forEach(e -> System.out.println(this.grammar.getSortedProductions().get(e - 1)));
+        var production = getProductionForIndex(derivations.get(0));
+        derivations.remove(0);
+        var result = new ArrayList<>(production.getRepresentation());
+        states.add(new ArrayList<>(result));
+        while (derivations.size() > 0){
+            production = getProductionForIndex(derivations.get(0));
+            derivations.remove(0);
+            var leftHandise = getRightHandsideForProduction(production);
+            var indexOfLeftHandsideInResult = result.indexOf(leftHandise);
+            if(indexOfLeftHandsideInResult != -1){
+                result.remove(indexOfLeftHandsideInResult);
+                result.addAll(indexOfLeftHandsideInResult, production.getRepresentation().stream().filter(e -> !Objects.equals(e, ProgramInitializer.EPSILON)).collect(Collectors.toList()));
+                states.add(new ArrayList<>(result));
+            }
         }
-        System.out.println();
+        states.forEach(System.out::println);
+    }
+
+    private Production getProductionForIndex(int index){
+        return this.grammar.getSortedProductions().get(index - 1);
+    }
+
+    private String getRightHandsideForProduction(Production production){
+        return this.grammar.getP()
+                .stream()
+                .filter(e -> e.getRightHandside().contains(production))
+                .findAny()
+                .orElseThrow()
+                .getLeftHandside();
+    }
+
+    public int getFirstNonTerminalPosition(List<String> production){
+        var nonTermial = production.stream().filter(grammar::isInNonTerminals).findFirst();
+        return production.indexOf(nonTermial.orElse(""));
     }
 
     public void displayFollow(){
