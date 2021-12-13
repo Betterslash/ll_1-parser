@@ -3,7 +3,6 @@ package service;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import model.ParserTableKey;
 import model.Production;
 import util.ProgramInitializer;
 
@@ -40,6 +39,11 @@ public class ParserTable {
                         if(ks != null){
                             ks.forEach(o -> result.forEach((k, v) -> {
                                 if(Objects.equals(k.getColumn(), o.getColumn()) && Objects.equals(k.getRow(), o.getRow())){
+                                    if(result.get(k).getProduction() != null){
+                                        if(result.get(k).getProductionKey() != null){
+                                            throw new RuntimeException(String.format("Grammar is not ll(1)!! Conflict at %s !!", result.get(k)));
+                                        }
+                                    }
                                     result.put(k, ParserTableValue.builder().production(q).productionKey(index.get() + 1).build());
                                 }
                             }));

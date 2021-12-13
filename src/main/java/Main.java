@@ -13,14 +13,16 @@ public class Main {
      */
     public static void main(String[] args) {
         var parser = new Parser();
-        var testSequence= List.of("a","+", "(", "a", "+", "a", ")", "*","(" , "a", "+", "a", ")", "+", "a"
-                /*"var","id", ":", "int", ";", "id", ":", "bool", ";","id", ":", "char", ";"*/);
+        var testSequence= List.of("a","+", "(", "a", "+", "a", ")", "*","(" , "a", "+", "a", ")", "+", "a");
 
         parser.displayFirst();
         parser.displayFollow();
         System.out.println(parser.getParserTable().toTableInfo());
         parser.displayDerivationsForSequence(testSequence);
-        var ws = parser.getDerivationsForSequence(testSequence).stream().map(Object::toString).reduce((a, b) -> a + b).orElseThrow();
+        var ws = parser.getDerivationsForSequence(testSequence).stream()
+                .map(Object::toString)
+                .reduce((a, b) -> a + b)
+                .orElseThrow();
         var pareserTree = new ParserTree(parser.getGrammar(), ws);
 
         pareserTree.prettyPrint();

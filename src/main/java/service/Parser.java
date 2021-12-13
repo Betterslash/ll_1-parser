@@ -171,14 +171,16 @@ public class Parser {
         }
         while (!Objects.equals(initialStep.get(0), "$")){
             var currentSymbol = initialStep.get(0);
-            var index = grammar.getKeySortedProduction()
-                    .entrySet().stream()
-                    .filter(e -> Objects.equals(e.getValue().toString(), ProgramInitializer.EPSILON) && Objects.equals(e.getKey().getKey(), currentSymbol))
-                            .findFirst()
-                                    .orElseThrow()
-                                            .getKey()
-                    .getIndex();
-            derivations.add(index + 1);
+            if(grammar.getN().contains(currentSymbol)){
+                var index = grammar.getKeySortedProduction()
+                        .entrySet().stream()
+                        .filter(e -> Objects.equals(e.getValue().toString(), ProgramInitializer.EPSILON) && Objects.equals(e.getKey().getKey(), currentSymbol))
+                        .findFirst()
+                        .orElseThrow()
+                        .getKey()
+                        .getIndex();
+                derivations.add(index + 1);
+            }
             initialStep.remove(0);
         }
         return  derivations;
