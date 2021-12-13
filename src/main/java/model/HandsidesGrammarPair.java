@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @RequiredArgsConstructor
 public class HandsidesGrammarPair {
+
     private final String leftHandside;
     private final List<Production> rightHandside;
 
